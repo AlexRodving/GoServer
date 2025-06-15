@@ -1,13 +1,12 @@
 package main
 
 import (
-	//"fmt"
-	"log"
-	//"os"
-	"server/config"
 	"github.com/gin-gonic/gin"
-	"server/internal/database"
+	"log"
+	"server/config"
 	"server/internal/auth"
+	"server/internal/database"
+	"server/internal/task"
 )
 
 func main() {
@@ -43,7 +42,15 @@ func main() {
 		authRoutes.POST("/register", authHandler.Register)
 		authRoutes.POST("/login", authHandler.Login)
 	}
-
+	taskHandler := task.NewTaskHandler(db)
+	api := r.Group("/api")
+	api.Use(auth.AuthMiddleware())
+	{
+		api.POST("/tasks", taskHandler.CreateTask)
+		api.GET("/tasks", taskHandler.GetTasks)
+		api.PUT("/tasks/:id", taskHandler.UpdateTask)
+		api.DELETE("/tasks/:id", taskHandler.DeleteTask)
+	}
 	// Запускаем сервер
 	if err := r.Run(":" + port); err != nil {
 		log.Fatalf("Ошибка запуска сервера: %v", err)

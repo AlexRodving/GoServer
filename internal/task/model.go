@@ -5,10 +5,13 @@ import (
 )
 
 type Task struct {
-	ID        uint      `gorm:"primaryKey" json:"id"`
-	Title     string    `gorm:"not null" json:"title"`
-	Completed bool      `gorm:"default:false" json:"completed"`
-	UserID    uint      `gorm:"index" json:"user_id"` // внешний ключ к пользователю
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uint      `gorm:"primaryKey"`
+	Title     string    `gorm:"not null"`
+	StartDate time.Time `gorm:"not null"`
+	EndDate   time.Time `gorm:"not null"`
+	Status    string    `gorm:"default:'todo'"` // todo, in-progress, done
+	UserID    uint      `gorm:"not null"`
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
