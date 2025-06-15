@@ -4,9 +4,10 @@ import (
 	"net/http"
 	"strconv"
 
+	"server/pkg/context"
+
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"server/pkg/context"
 )
 
 type Handler struct {
@@ -22,15 +23,38 @@ func NewTaskHandler(db *gorm.DB) *Handler {
 func (h *Handler) CreateTask(c *gin.Context) {
 	var input CreateTaskInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Некорректные данные",
+			"details": err.Error(),
+		})
 		return
 	}
+
+	// Validate dates
+	if input.EndDate.Before(input.StartDate) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Дата окончания не может быть раньше даты начала",
+		})
+		return
+	}
+
 	userID := context.GetUserID(c)
+	if userID == 0 {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "Пользователь не авторизован",
+		})
+		return
+	}
+
 	err := h.service.CreateTask(input, userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при создании задачи"})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Ошибка при создании задачи",
+			"details": err.Error(),
+		})
 		return
 	}
+
 	c.Status(http.StatusCreated)
 }
 

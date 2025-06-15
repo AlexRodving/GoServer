@@ -6,7 +6,7 @@ type CreateTaskInput struct {
 	Title     string    `json:"title" binding:"required"`
 	StartDate time.Time `json:"start_date" binding:"required"`
 	EndDate   time.Time `json:"end_date" binding:"required"`
-	Status    string    `json:"status" binding:"required,oneof=todo in-progress done"`
+	Status    string    `json:"status" binding:"omitempty,oneof=todo in-progress done"`
 }
 
 type UpdateTaskInput struct {

@@ -16,11 +16,16 @@ func NewService(repo Repository) Service {
 }
 
 func (s *service) CreateTask(input CreateTaskInput, userID uint) error {
+	status := input.Status
+	if status == "" {
+		status = "todo"
+	}
+
 	task := Task{
 		Title:     input.Title,
 		StartDate: input.StartDate,
 		EndDate:   input.EndDate,
-		Status:    input.Status,
+		Status:    status,
 		UserID:    userID,
 	}
 	return s.repo.Create(&task)
